@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Submit Complaint - CIMS</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="submit-page">
+
+<nav>
+    <h2>Campus Resolver</h2>
+    <div>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="my-complaints.html">My Complaints</a>
+        <a href="index.html">Logout</a>
+    </div>
+</nav>
+
+<div class="form-container">
+    <h2>Submit Complaint</h2>
+
+    <form id="complaintConatainer">
+        <input type="text" id="title" placeholder="Complaint Title" required>
+
+        <textarea id="description" placeholder="Description" required 
+        style="width:100%; padding:10px; margin:10px 0; border-radius:5px;"></textarea>
+
+        <select id="category" required style="width:100%; padding:10px; margin:10px 0;">
+            <option value="">Select Category</option>
+            <option>Classroom</option>
+            <option>Lab</option>
+            <option>Hostel</option>
+            <option>Library</option>
+            <option>Canteen</option>
+            <option>WiFi</option>
+        </select>
+
+        <input type="text" id="building" placeholder="Building Name" required>
+        <input type="text" id="room" placeholder="Room Number" required>
+
+        <select id="priority" required style="width:100%; padding:10px; margin:10px 0;">
+            <option value="">Select Priority</option>
+            <option>Low</option>
+            <option>Medium</option>
+            <option>High</option>
+        </select>
+
+        <button type="submit">Submit Complaint</button>
+    </form>
+</div>
+
+<!-- Firebase Scripts -->
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+   apiKey: "AIzaSyDD4PDJ-2dGabACe5Tn1y4L62KRqQY2_2E",
+  authDomain: "cims-project-a2ab9.firebaseapp.com",
+  projectId: "cims-project-a2ab9",
+  storageBucket: "cims-project-a2ab9.firebasestorage.app",
+  messagingSenderId: "88316003268",
+  appId: "1:88316003268:web:658e5cac8459c8b6785a91",
+  measurementId: "G-J36LJTNLX9"
+
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+onAuthStateChanged(auth, (user) => {
+
+  if (!user) {
+    window.location.href = "login.html";
+    return;
+  }
+
+  const form = document.getElementById("complaintConatainer");
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const title = document.getElementById("title").value;
+    const description = document.getElementById("description").value;
+    const userEmail = user.email;
+    const status = "Pending";
+    const building = document.getElementById("building").value;
+    const room = document.getElementById("room").value;
+    const priority = document.getElementById("priority").value;
+    const createdAt = new Date();
+
+    try {
+      await addDoc(collection(db, "complaints"), {
+        title: title,
+        description: description,
+        userEmail: user.email,
+        status: "Pending",
+        building:building,
+        room: room,
+        priority: priority,
+        createdAt: new Date() 
+      });
+
+      alert("Complaint Submitted ✅");
+      window.location.href = "my-complaints.html";
+
+    } catch (error) {
+      alert(error.message);
+    }
+  });
+
+});
+
+
+
+</script>
+
+</body>
+</html>
